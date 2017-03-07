@@ -7,7 +7,6 @@ autoload -Uz compinit promptinit vcs_info color
 
 
 
-
 # Options (((
 
 # Auto-corrects commands:
@@ -28,10 +27,7 @@ setopt autocd
 # Expands globbing operator and list all matches found:
 setopt extendedglob
 
-
-
 # )))
-
 
 
 
@@ -40,37 +36,17 @@ setopt extendedglob
 # Activates prompt:
 promptinit
 
-# Sets prompt:
-prompt gentoo
-
 # Sets 256 color mode:
 export TERM="xterm-256color"
 
-# Powerlevel9k{{{
-
-## Sets the font:
-#POWERLEVEL9K_MODE='awesome-fontconfig'
-
-## Creates styled prompt:
-#POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(time context dir vcs)
-#POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status pyenv rbenv)
-#POWERLEVEL9K_STATUS_VERBOSE=false
-#POWERLEVEL9K_SHORTEN_STRATEGY="truncate_middle"
-#POWERLEVEL9K_SHORTEN_DIR_LENGTH=3
-#POWERLEVEL9K_HOME_ICON=''
-#POWERLEVEL9K_HOME_SUB_ICON=''
-#POWERLEVEL9K_FOLDER_ICON=''
-#POWERLEVEL9K_TIME_FORMAT="%D{\uf017 %H:%M:%S}"
-#POWERLEVEL9K_FAIL_ICON='\uf00d'
-#POWERLEVEL9K_VCS_GIT_ICON='\uf00a'
-#POWERLEVEL9K_VCS_COMMIT_ICON='\uf01f'
-#POWERLEVEL9K_OK_ICON='\uf00c'
-#POWERLEVEL9K_NETWORK_ICON='\uf1eb'
-#POWERLEVEL9K_LEFT_SEGMENT_SEPARATOR='\uf105'
+# Powerlevel9k Configuration
+POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(time context root_indicator dir vcs)
+POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status background_jobs)
+POWERLEVEL9K_STATUS_VERBOSE=false
+POWERLEVEL9K_SHORTEN_STRATEGY="truncate_middle"
+POWERLEVEL9K_SHORTEN_DIR_LENGTH=3
 
 # }}}
-# }}}
-
 
 
 
@@ -80,7 +56,7 @@ export TERM="xterm-256color"
 export HISTSIZE=2000
 
 # Sets history file directory:
-export HISTFILE="$HOME/var/logs/zsh/history"
+export HISTFILE="~/.zsh/zhistory"
 
 # Saves history:
 export SAVEHIST=$HISTSIZE
@@ -89,30 +65,37 @@ export SAVEHIST=$HISTSIZE
 
 
 
-
 # Variables {{{
 
-# Displays location of scripts:
+# Sets default editor to vim:
+export EDITOR=/usr/bin/vim
+
+# Displays location of local scripts:
 export PATH=$PATH:~/bin
+
+# Fixes "command not found" for root permission programs:
+export PATH=/sbin:/usr/sbin:$PATH
+
+# Sets JDK environments
+export JDK_HOME=/usr/lib/jvm/oracle-jdk-bin-1.8
+export JAVA_HOME=/usr/lib/jvm/oracle-jdk-bin-1.8
 
 # }}}
 
 
 
-
 # Aliases {{{
 
-# Remind me to use keyboard shortcuts instead:
-alias clear="echo 'Use ^L!'"
+# Reminds me to use keyboard shortcuts instead:
+alias clear="echo 'USE ^L!'"
 
 # Incase you forget to type sudo:
 alias fuck='sudo $(fc -ln -1)'
 
 # Improves 'ls' commands:
 alias ls="ls --color=auto"
-alias ll="ls -lh"
+alias ll="ls -lha"
 alias la="ls -a"
-alias lla="ll -a"
 
 # Automatically warps text in nano:
 alias nano="nano -w"
@@ -123,9 +106,16 @@ alias dpaste="wgetpaste -s dpaste"
 # Runs screenshot in interactive mode:
 alias gnome-screenshot="gnome-screenshot --interactive"
 
-#
-# }}}
+# ISO 8601
+alias date="date -I'seconds' | sed -e 's/T/ /g'"
 
+# Remove directory shortcut:
+alias rmr="rm -r"
+
+# Improves 'df' command:
+alias df="df -h"
+
+# }}}
 
 
 
@@ -147,13 +137,7 @@ zstyle ':completion:*:warnings' format '%BSorry, no matches for: %d%b'
 
 
 
-
 # Functions {{{
-
-# Alt-S inserts "sudo" at the start of the line:
-insert_sudo () { zle beginning-of-line; zle -U "sudo " }
-zle -N insert-sudo insert_sudo
-bindkey "^[s" insert-sudo
 
 # Displays a list of supported colors:
 function lscolors {
@@ -194,7 +178,7 @@ function myip {
 }
 
 # Shortens url using goo.gl:
-function zurl {
+function surl {
 	if [[ -z $1 ]]; then
 		print "USAGE: $0 <URL>"
 		return 1
@@ -217,21 +201,19 @@ function zurl {
 	fi
 }
 
-
 # }}}
-
 
 
 
 # External Files {{{
 
-# ZSH syntax highlighting:
-source ~/docs/config/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
 # ZSH auto-suggestions:
-source ~/docs/config/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 
-## PowerLevel9k themeing:
-# source  ~/docs/config/zsh/plugins/powerlevel9k/powerlevel9k.zsh-theme
+# ZSH syntax-highlighting:
+source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh 
+
+# Powerlevel9k theme:
+source ~/.zsh/powerlevel9k/powerlevel9k.zsh-theme
 
 # }}}
