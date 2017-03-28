@@ -86,16 +86,17 @@ export JAVA_HOME=/usr/lib/jvm/oracle-jdk-bin-1.8
 
 # Aliases {{{
 
-# Reminds me to use keyboard shortcuts instead:
-alias clear="echo 'USE ^L!'"
+# Remind me to use keyboard shortcuts instead:
+alias clear="echo 'Use ^L!'"
 
 # Incase you forget to type sudo:
 alias fuck='sudo $(fc -ln -1)'
 
 # Improves 'ls' commands:
 alias ls="ls --color=auto"
-alias ll="ls -lha"
+alias ll="ls -lh"
 alias la="ls -a"
+alias lla="ll -a"
 
 # Automatically warps text in nano:
 alias nano="nano -w"
@@ -107,13 +108,7 @@ alias dpaste="wgetpaste -s dpaste"
 alias gnome-screenshot="gnome-screenshot --interactive"
 
 # ISO 8601
-alias date="date -I'seconds' | sed -e 's/T/ /g'"
-
-# Remove directory shortcut:
-alias rmr="rm -r"
-
-# Improves 'df' command:
-alias df="df -h"
+date="date -I'seconds' | sed -e 's/T/ /g'"
 
 # }}}
 
@@ -138,6 +133,25 @@ zstyle ':completion:*:warnings' format '%BSorry, no matches for: %d%b'
 
 
 # Functions {{{
+
+# Performs a full system upgrade
+function full-upgrade {
+	echo "\n[I] Updating repositories\n"
+	sudo apt update
+	echo "\n[I] Upgrading packages\n"
+	sudo apt full-upgrade
+	echo "\n[I] Removing orphans\n"
+	sudo apt autoremove
+	echo "\n[I] Cleaning dep files\n"
+	sudo apt autoclean
+}
+
+# Alt-S inserts "sudo" at the start of the line:
+function insert_sudo {
+	zle beginning-of-line; zle -U "sudo " 
+}
+	zle -N insert-sudo insert_sudo
+	bindkey "^[s" insert-sudo
 
 # Displays a list of supported colors:
 function lscolors {
@@ -178,7 +192,7 @@ function myip {
 }
 
 # Shortens url using goo.gl:
-function surl {
+function zurl {
 	if [[ -z $1 ]]; then
 		print "USAGE: $0 <URL>"
 		return 1
@@ -200,6 +214,7 @@ function surl {
 		print $match
 	fi
 }
+
 
 # }}}
 
