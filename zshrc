@@ -1,13 +1,19 @@
-# ZSH Modules {{{
+## ZSH Modules {{{
 
 # Loads listed modules:
-autoload -Uz compinit promptinit vcs_info color
+autoload -Uz compinit promptinit vcs_info color && compinit -i
 
-# }}}
+# Starts tmux by default:
+if which tmux >/dev/null 2>&1; then
+    # If not inside a tmux session, and if no session is started, start a new session
+    test -z "$TMUX" && (tmux attach || tmux new-session)
+fi
+
+## }}}
 
 
 
-# Options (((
+## Options {{{
 
 # Auto-corrects commands:
 setopt correctall
@@ -21,17 +27,23 @@ setopt hist_ignore_space
 # Shares the same history with all shells:
 setopt sharehistory
 
-# Changes into typed-in directory without having to type "cd":
-setopt autocd
-
 # Expands globbing operator and list all matches found:
 setopt extendedglob
 
-# )))
+# Appends history
+setopt append_history
+
+# Save timestamp
+setopt extended_history
+
+# Add history immediately after command
+setopt inc_append_history
+
+## }}}
 
 
 
-# Prompt {{{
+## Prompt {{{
 
 # Activates prompt:
 promptinit
@@ -40,32 +52,32 @@ promptinit
 export TERM="xterm-256color"
 
 # Powerlevel9k Configuration
-POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(time context root_indicator dir vcs)
-POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status background_jobs)
-POWERLEVEL9K_STATUS_VERBOSE=false
-POWERLEVEL9K_SHORTEN_STRATEGY="truncate_middle"
-POWERLEVEL9K_SHORTEN_DIR_LENGTH=3
+#POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(time context root_indicator dir vcs)
+#POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status background_jobs)
+#POWERLEVEL9K_STATUS_VERBOSE=false
+#POWERLEVEL9K_SHORTEN_STRATEGY="truncate_middle"
+#POWERLEVEL9K_SHORTEN_DIR_LENGTH=3
 
-# }}}
+## }}}
 
 
 
-# History {{{
+## History {{{
 
 # Sets history size:
 export HISTSIZE=2000
 
-# Sets history file directory:
-export HISTFILE="~/.zsh/zhistory"
-
 # Saves history:
 export SAVEHIST=$HISTSIZE
 
-# }}}
+# Sets history file directory:
+export HISTFILE=~/.zsh/zhistory
+
+## }}}
 
 
 
-# Variables {{{
+## Variables {{{
 
 # Sets default editor to vim:
 export EDITOR=/usr/bin/vim
@@ -80,11 +92,14 @@ export PATH=/sbin:/usr/sbin:$PATH
 export JDK_HOME=/usr/lib/jvm/oracle-jdk-bin-1.8
 export JAVA_HOME=/usr/lib/jvm/oracle-jdk-bin-1.8
 
-# }}}
+## }}}
 
 
 
-# Aliases {{{
+## Aliases {{{
+
+# Trashes things instead of deleting:
+alias rm="trash"
 
 # Remind me to use keyboard shortcuts instead:
 alias clear="echo 'Use ^L!'"
@@ -108,13 +123,16 @@ alias dpaste="wgetpaste -s dpaste"
 alias gnome-screenshot="gnome-screenshot --interactive"
 
 # ISO 8601
-date="date -I'seconds' | sed -e 's/T/ /g'"
+alias date="date -I'seconds' | sed -e 's/T/ /g'"
 
-# }}}
+# Points to docker-compose yaml file
+alias dcp='docker-compose -f /mnt/docker/docker-compose.yml '
+
+## }}}
 
 
 
-# Completions {{{
+## Completions {{{
 
 # Activates completions:
 compinit -d ~/var/cache/zsh
@@ -128,11 +146,16 @@ zstyle ':completion:*:descriptions' format '%U%B%d%b%u'
 # Gives error if no matches appear:
 zstyle ':completion:*:warnings' format '%BSorry, no matches for: %d%b'
 
-# }}}
+## }}}
 
 
 
-# Functions {{{
+## Functions {{{
+
+# Updates all git repositories
+function git-update {
+	echo "\n[I] Updating projects\n"
+}
 
 # Performs a full system upgrade
 function full-upgrade {
@@ -146,12 +169,10 @@ function full-upgrade {
 	sudo apt autoclean
 }
 
-# Alt-S inserts "sudo" at the start of the line:
-function insert_sudo {
-	zle beginning-of-line; zle -U "sudo " 
+# Sort packages by size
+function apt-list-packages {
+  dpkg-query -W --showformat='${Installed-Size} ${Package} ${Status}\n' | grep -v deinstall | sort -n | awk '{print $1" "$2}'
 }
-	zle -N insert-sudo insert_sudo
-	bindkey "^[s" insert-sudo
 
 # Displays a list of supported colors:
 function lscolors {
@@ -166,11 +187,6 @@ function lscolors {
 function launch {
 	type $1 >/dev/null || { print "$1 not found" && return 1 }
 	$@ &>/dev/null &|
-}
-
-# Opens a web browser on google for a query:
-function google {
-	xdg-open "https://www.google.com/search?q=`urlencode "${(j: :)@}"`"
 }
 
 # Gets public ip address:
@@ -216,11 +232,11 @@ function zurl {
 }
 
 
-# }}}
+## }}}
 
 
 
-# External Files {{{
+## External Files {{{
 
 # ZSH auto-suggestions:
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
@@ -228,7 +244,10 @@ source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 # ZSH syntax-highlighting:
 source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh 
 
-# Powerlevel9k theme:
-source ~/.zsh/powerlevel9k/powerlevel9k.zsh-theme
+# Spaceship theme:
+source ~/.zsh/spaceship-prompt/spaceship.zsh
 
-# }}}
+# Include completions
+fpath=(~/.zsh/completion $fpath)
+
+## }}}
