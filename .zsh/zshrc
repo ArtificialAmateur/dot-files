@@ -1,16 +1,14 @@
+
+if command -v tmux >/dev/null; then
+  [[ ! $TERM =~ screen ]] && [ -z $TMUX ] && exec tmux attach
+fi
+
 ## ZSH Modules {{{
 
 # Loads listed modules:
 autoload -Uz compinit promptinit vcs_info color && compinit -i
 
-# Starts tmux by default:
-if which tmux >/dev/null 2>&1; then
-    # If not inside a tmux session, and if no session is started, start a new session
-    test -z "$TMUX" && (tmux attach || tmux new-session)
-fi
-
 ## }}}
-
 
 
 ## Options {{{
@@ -48,15 +46,8 @@ setopt inc_append_history
 # Activates prompt:
 promptinit
 
-# Sets 256 color mode:
-export TERM="xterm-256color"
-
-# Powerlevel9k Configuration
-#POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(time context root_indicator dir vcs)
-#POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status background_jobs)
-#POWERLEVEL9K_STATUS_VERBOSE=false
-#POWERLEVEL9K_SHORTEN_STRATEGY="truncate_middle"
-#POWERLEVEL9K_SHORTEN_DIR_LENGTH=3
+# Sets tmux mode:
+export TERM="st-256color"
 
 ## }}}
 
@@ -80,7 +71,7 @@ export HISTFILE=~/.zsh/zhistory
 ## Variables {{{
 
 # Sets default editor to vim:
-export EDITOR=/usr/bin/vim
+export EDITOR=/usr/bin/nano
 
 # Displays location of local scripts:
 export PATH=$PATH:~/bin
@@ -113,20 +104,22 @@ alias ll="ls -lh"
 alias la="ls -a"
 alias lla="ll -a"
 
-# Automatically warps text in nano:
-alias nano="nano -w"
-
 # Runs wgetpaste with dpaste:
 alias dpaste="wgetpaste -s dpaste"
 
 # Runs screenshot in interactive mode:
 alias gnome-screenshot="gnome-screenshot --interactive"
 
-# ISO 8601
-alias date="date -I'seconds' | sed -e 's/T/ /g'"
+## Causes issues with spaceship prompt:
+# ISO 8601:
+#alias date="date -I'seconds' | sed -e 's/T/ /g'"
 
 # Points to docker-compose yaml file
 alias dcp='docker-compose -f /mnt/docker/docker-compose.yml '
+
+# Fixes editor scrolling issues within tmux
+alias vim="TERM='xterm-color' vim"
+alias nano="TERM='xterm-color' nano"
 
 ## }}}
 

@@ -1,0 +1,71 @@
+"Enable Pathogen
+execute pathogen#infect()
+
+"Enable filetype detection
+filetype on
+
+"Enable syntax highlighting
+syntax on
+
+"Set colorscheme to molokai
+colorscheme molokai
+
+"Enable line numbers
+set number
+
+"Set leader key
+let mapleader=" "
+
+"Reload vim config
+map <leader>s :source ~/.vimrc<CR>
+
+"Set history size
+set history=4096
+
+"Keep buffer hidden in memory
+set hidden
+
+"Enable filetype indentation
+filetype indent on
+set smartindent
+set autoindent
+set nowrap
+set expandtab
+set tabstop=4
+set shiftwidth=4
+
+"Remove trailing whitespace
+autocmd BufWritePre * :%s/\s\+$//e
+
+"Highlight search results
+set hlsearch
+
+"Cancel search with Esc:
+nnoremap <silent> <Esc> :nohlsearch<Bar>:echo<CR>
+
+"Open previous file:
+nnoremap <Leader><Leader> :e#<CR>
+
+"Highlight matching parenthesis:
+set showmatch
+
+"Enable statusbar:
+set laststatus=2
+
+"Hide redundant info:
+set noshowmode
+
+"Set theme to one:
+let g:lightline = {
+    \ 'colorscheme': 'molokai',
+    \ }
+
+" Enable folding:
+set foldmethod=marker
+nnoremap <leader> za
+
+" Disable arrowkeys:
+noremap <Up> <Nop>
+noremap <Down> <Nop>
+noremap <Left> <Nop>
+noremap <Right> <Nop>
