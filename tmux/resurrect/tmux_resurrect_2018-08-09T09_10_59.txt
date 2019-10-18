@@ -1,9 +1,0 @@
-pane	0	1	:Docker	0	:-	1	:/home/artificial	1	docker-compose	:docker-compose -f /mnt/docker/docker-compose.yml up
-pane	0	2	:htop	0	:	1	:/home/artificial	1	htop	:htop
-pane	0	4	:zsh	1	:*	1	:/home/artificial	1	zsh	:
-pane	1	1	:htop	1	:*	1	:/home/artificial	1	htop	:htop
-window	0	1	0	:-	cafd,120x29,0,0,0
-window	0	2	0	:	cb04,120x29,0,0,7
-window	0	4	1	:*	65b2,120x29,0,0,13
-window	1	1	1	:*	cb03,120x29,0,0,6
-state	0	

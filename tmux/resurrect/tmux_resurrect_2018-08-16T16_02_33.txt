@@ -1,7 +1,0 @@
-pane	1	1	:Docker	0	:	1	:/mnt/docker	1	docker-compose	:docker-compose -f /mnt/docker/docker-compose.yml logs -f -t
-pane	1	2	:htop	0	:-	1	:/home/artificial	1	htop	:htop
-pane	1	3	:netcat	1	:*	1	:/home/artificial	1	zsh	:
-window	1	1	0	:	6446,97x57,0,0,36
-window	1	2	0	:-	cd03,185x57,0,0,6
-window	1	3	1	:*	e163,255x64,0,0,62
-state	1	
