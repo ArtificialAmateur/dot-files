@@ -1,7 +1,7 @@
-
-if command -v tmux >/dev/null; then
-  [[ ! $TERM =~ screen ]] && [ -z $TMUX ] && exec tmux attach
-fi
+# Opens tmux properly:
+#if command -v tmux >/dev/null; then
+#  [[ ! $TERM =~ screen ]] && [ -z $TMUX ] && exec tmux attach
+#fi
 
 ## ZSH Modules {{{
 
@@ -40,17 +40,23 @@ setopt inc_append_history
 ## }}}
 
 
-
 ## Prompt {{{
 
 # Activates prompt:
 promptinit
 
-# Sets tmux mode:
-export TERM="st-256color"
+# Workaround for handling TERM variable in multiple tmux sessions properly:
+if [[ -n ${TMUX} && -n ${commands[tmux]} ]];then
+        case $(tmux showenv TERM 2>/dev/null) in
+                *256color) ;&
+                TERM=fbterm)
+                        TERM=screen-256color ;;
+                *)
+                        TERM=screen
+        esac
+fi
 
 ## }}}
-
 
 
 ## History {{{
@@ -62,7 +68,7 @@ export HISTSIZE=2000
 export SAVEHIST=$HISTSIZE
 
 # Sets history file directory:
-export HISTFILE=~/.zsh/zhistory
+export HISTFILE=~/.zsh/zhistory/zhist-$(date +'%Y-%m-%d')
 
 ## }}}
 
@@ -70,24 +76,34 @@ export HISTFILE=~/.zsh/zhistory
 
 ## Variables {{{
 
-# Sets default editor to vim:
-export EDITOR=/usr/bin/nano
-
-# Displays location of local scripts:
-export PATH=$PATH:~/bin
+# Sets default editor to emacs:
+export EDITOR=/usr/bin/vim
 
 # Fixes "command not found" for root permission programs:
 export PATH=/sbin:/usr/sbin:$PATH
 
+# Displays location of local scripts:
+export PATH=$PATH:~/bin:~/.local/bin
+
+# Set Rust environment
+export PATH=$HOME/.cargo/bin:$PATH
+
 # Sets JDK environments
-export JDK_HOME=/usr/lib/jvm/oracle-jdk-bin-1.8
-export JAVA_HOME=/usr/lib/jvm/oracle-jdk-bin-1.8
+#export JDK_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+#export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+
 
 ## }}}
 
 
 
 ## Aliases {{{
+
+# Objdump use intel syntax
+alias objdump="objdump -M intel"
+
+# Stops GDB from showing version info at start-up
+alias gdb="gdb -q"
 
 # Trashes things instead of deleting:
 alias rm="trash"
@@ -115,14 +131,17 @@ alias gnome-screenshot="gnome-screenshot --interactive"
 #alias date="date -I'seconds' | sed -e 's/T/ /g'"
 
 # Points to docker-compose yaml file
-alias dcp='docker-compose -f /mnt/docker/docker-compose.yml '
+alias dcp='docker-compose -f /../../docker-compose.yml '
 
 # Fixes editor scrolling issues within tmux
-alias vim="TERM='xterm-color' vim"
-alias nano="TERM='xterm-color' nano"
+alias vim="TERM=xterm-color vim"
+alias nano="TERM=xterm-color nano"
+alias ssh="TERM=xterm-color ssh"
+
+# Start emacs in terminal by default:
+alias emacs="emacs -nw"
 
 ## }}}
-
 
 
 ## Completions {{{
@@ -142,13 +161,7 @@ zstyle ':completion:*:warnings' format '%BSorry, no matches for: %d%b'
 ## }}}
 
 
-
 ## Functions {{{
-
-# Updates all git repositories
-function git-update {
-	echo "\n[I] Updating projects\n"
-}
 
 # Performs a full system upgrade
 function full-upgrade {
@@ -228,19 +241,18 @@ function zurl {
 ## }}}
 
 
-
 ## External Files {{{
 
 # ZSH auto-suggestions:
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 # ZSH syntax-highlighting:
-source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh 
+source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 # Spaceship theme:
 source ~/.zsh/spaceship-prompt/spaceship.zsh
 
 # Include completions
-fpath=(~/.zsh/completion $fpath)
+fpath=(~/.zsh/zsh-completions/src $fpath)
 
 ## }}}
