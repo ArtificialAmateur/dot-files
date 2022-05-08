@@ -71,6 +71,9 @@ export HISTFILE=~/.zsh/zhistory/zhist-$(date +'%Y-%m-%d')
 
 ## Variables {{{
 
+# Set default GPG location
+export GPG_TTY=$(tty)
+
 # Sets default editor to neovim:
 export EDITOR=/usr/bin/nvim
 
