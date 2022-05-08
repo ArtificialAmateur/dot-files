@@ -1,7 +1,7 @@
 # Opens tmux properly:
-#if command -v tmux >/dev/null; then
-#  [[ ! $TERM =~ screen ]] && [ -z $TMUX ] && exec tmux attach
-#fi
+if command -v tmux >/dev/null; then
+  [[ ! $TERM =~ screen ]] && [ -z $TMUX ] && exec tmux attach
+fi
 
 ## ZSH Modules {{{
 
@@ -9,7 +9,6 @@
 autoload -Uz compinit promptinit vcs_info color && compinit -i
 
 ## }}}
-
 
 ## Options {{{
 
@@ -39,7 +38,6 @@ setopt inc_append_history
 
 ## }}}
 
-
 ## Prompt {{{
 
 # Activates prompt:
@@ -58,7 +56,6 @@ fi
 
 ## }}}
 
-
 ## History {{{
 
 # Sets history size:
@@ -72,12 +69,10 @@ export HISTFILE=~/.zsh/zhistory/zhist-$(date +'%Y-%m-%d')
 
 ## }}}
 
-
-
 ## Variables {{{
 
-# Sets default editor to emacs:
-export EDITOR=/usr/bin/vim
+# Sets default editor to neovim:
+export EDITOR=/usr/bin/nvim
 
 # Fixes "command not found" for root permission programs:
 export PATH=/sbin:/usr/sbin:$PATH
@@ -85,13 +80,26 @@ export PATH=/sbin:/usr/sbin:$PATH
 # Displays location of local scripts:
 export PATH=$PATH:~/bin:~/.local/bin
 
+# Set Python environment
+
 # Set Rust environment
 export PATH=$HOME/.cargo/bin:$PATH
+
+# Set Go environment
+export PATH=$PATH:/usr/local/go/bin
+export PATH=$HOME/go/bin:$PATH
 
 # Sets JDK environments
 #export JDK_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 #export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 
+# Set Nim environment
+export PATH=$HOME/.nimble/bin:$PATH
+
+# Set Node Version Manager environment
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 ## }}}
 
@@ -105,9 +113,6 @@ alias objdump="objdump -M intel"
 # Stops GDB from showing version info at start-up
 alias gdb="gdb -q"
 
-# Trashes things instead of deleting:
-alias rm="trash"
-
 # Remind me to use keyboard shortcuts instead:
 alias clear="echo 'Use ^L!'"
 
@@ -116,7 +121,7 @@ alias fuck='sudo $(fc -ln -1)'
 
 # Improves 'ls' commands:
 alias ls="ls --color=auto"
-alias ll="ls -lh"
+alias ll="ls -lht"
 alias la="ls -a"
 alias lla="ll -a"
 
@@ -131,7 +136,10 @@ alias gnome-screenshot="gnome-screenshot --interactive"
 #alias date="date -I'seconds' | sed -e 's/T/ /g'"
 
 # Points to docker-compose yaml file
-alias dcp='docker-compose -f /../../docker-compose.yml '
+alias dcp='docker-compose'
+
+# Switches vim to nvim
+alias vim="nvim"
 
 # Fixes editor scrolling issues within tmux
 alias vim="TERM=xterm-color vim"
@@ -142,7 +150,6 @@ alias ssh="TERM=xterm-color ssh"
 alias emacs="emacs -nw"
 
 ## }}}
-
 
 ## Completions {{{
 
@@ -160,24 +167,88 @@ zstyle ':completion:*:warnings' format '%BSorry, no matches for: %d%b'
 
 ## }}}
 
+## Syntax Highlighting {{{
+
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main cursor)
+typeset -gA ZSH_HIGHLIGHT_STYLES
+# Comments
+ZSH_HIGHLIGHT_STYLES[comment]='fg=#6272A4'
+# Functions/methods
+ZSH_HIGHLIGHT_STYLES[alias]='fg=#50FA7B'
+ZSH_HIGHLIGHT_STYLES[suffix-alias]='fg=#50FA7B'
+ZSH_HIGHLIGHT_STYLES[global-alias]='fg=#50FA7B'
+ZSH_HIGHLIGHT_STYLES[function]='fg=#50FA7B'
+ZSH_HIGHLIGHT_STYLES[command]='fg=#50FA7B'
+ZSH_HIGHLIGHT_STYLES[precommand]='fg=#50FA7B,italic'
+ZSH_HIGHLIGHT_STYLES[autodirectory]='fg=#FFB86C,italic'
+ZSH_HIGHLIGHT_STYLES[single-hyphen-option]='fg=#FFB86C'
+ZSH_HIGHLIGHT_STYLES[double-hyphen-option]='fg=#FFB86C'
+ZSH_HIGHLIGHT_STYLES[back-quoted-argument]='fg=#BD93F9'
+# Built ins
+ZSH_HIGHLIGHT_STYLES[builtin]='fg=#8BE9FD'
+ZSH_HIGHLIGHT_STYLES[reserved-word]='fg=#8BE9FD'
+ZSH_HIGHLIGHT_STYLES[hashed-command]='fg=#8BE9FD'
+# Punctuation
+ZSH_HIGHLIGHT_STYLES[commandseparator]='fg=#FF79C6'
+ZSH_HIGHLIGHT_STYLES[command-substitution-delimiter]='fg=#F8F8F2'
+ZSH_HIGHLIGHT_STYLES[command-substitution-delimiter-unquoted]='fg=#F8F8F2'
+ZSH_HIGHLIGHT_STYLES[process-substitution-delimiter]='fg=#F8F8F2'
+ZSH_HIGHLIGHT_STYLES[back-quoted-argument-delimiter]='fg=#FF79C6'
+ZSH_HIGHLIGHT_STYLES[back-double-quoted-argument]='fg=#FF79C6'
+ZSH_HIGHLIGHT_STYLES[back-dollar-quoted-argument]='fg=#FF79C6'
+# Strings
+ZSH_HIGHLIGHT_STYLES[command-substitution-quoted]='fg=#F1FA8C'
+ZSH_HIGHLIGHT_STYLES[command-substitution-delimiter-quoted]='fg=#F1FA8C'
+ZSH_HIGHLIGHT_STYLES[single-quoted-argument]='fg=#F1FA8C'
+ZSH_HIGHLIGHT_STYLES[single-quoted-argument-unclosed]='fg=#FF5555'
+ZSH_HIGHLIGHT_STYLES[double-quoted-argument]='fg=#F1FA8C'
+ZSH_HIGHLIGHT_STYLES[double-quoted-argument-unclosed]='fg=#FF5555'
+ZSH_HIGHLIGHT_STYLES[rc-quote]='fg=#F1FA8C'
+# Variables
+ZSH_HIGHLIGHT_STYLES[dollar-quoted-argument]='fg=#F8F8F2'
+ZSH_HIGHLIGHT_STYLES[dollar-quoted-argument-unclosed]='fg=#FF5555'
+ZSH_HIGHLIGHT_STYLES[dollar-double-quoted-argument]='fg=#F8F8F2'
+ZSH_HIGHLIGHT_STYLES[assign]='fg=#F8F8F2'
+ZSH_HIGHLIGHT_STYLES[named-fd]='fg=#F8F8F2'
+ZSH_HIGHLIGHT_STYLES[numeric-fd]='fg=#F8F8F2'
+# No category relevant in spec
+ZSH_HIGHLIGHT_STYLES[unknown-token]='fg=#FF5555'
+ZSH_HIGHLIGHT_STYLES[path]='fg=#F8F8F2'
+ZSH_HIGHLIGHT_STYLES[path_pathseparator]='fg=#FF79C6'
+ZSH_HIGHLIGHT_STYLES[path_prefix]='fg=#F8F8F2'
+ZSH_HIGHLIGHT_STYLES[path_prefix_pathseparator]='fg=#FF79C6'
+ZSH_HIGHLIGHT_STYLES[globbing]='fg=#F8F8F2'
+ZSH_HIGHLIGHT_STYLES[history-expansion]='fg=#BD93F9'
+ZSH_HIGHLIGHT_STYLES[back-quoted-argument-unclosed]='fg=#FF5555'
+ZSH_HIGHLIGHT_STYLES[redirection]='fg=#F8F8F2'
+ZSH_HIGHLIGHT_STYLES[arg0]='fg=#F8F8F2'
+ZSH_HIGHLIGHT_STYLES[default]='fg=#F8F8F2'
+ZSH_HIGHLIGHT_STYLES[cursor]='standout'
+## }}}
 
 ## Functions {{{
 
-# Performs a full system upgrade
-function full-upgrade {
-	echo "\n[I] Updating repositories\n"
+# Update debian
+function update-all {
+	update-apt
+	update-flatpak
+	update-fw
+}
+
+function update-apt {
 	sudo apt update
-	echo "\n[I] Upgrading packages\n"
 	sudo apt full-upgrade
-	echo "\n[I] Removing orphans\n"
-	sudo apt autoremove
-	echo "\n[I] Cleaning dep files\n"
+	sudo apt autopurge
 	sudo apt autoclean
 }
 
-# Sort packages by size
-function apt-list-packages {
-  dpkg-query -W --showformat='${Installed-Size} ${Package} ${Status}\n' | grep -v deinstall | sort -n | awk '{print $1" "$2}'
+function update-fw {
+	sudo fwupdmgr refresh
+	sudo fwupdmgr update
+}
+
+function update-flatpak {
+	flatpak update
 }
 
 # Displays a list of supported colors:
@@ -213,46 +284,42 @@ function myip {
 	echo # Newline.
 }
 
-# Shortens url using goo.gl:
-function zurl {
-	if [[ -z $1 ]]; then
-		print "USAGE: $0 <URL>"
-		return 1
-	fi
-
-	local url=$1
-	local api="https://www.googleapis.com/urlshortener/v1/url"
-	local data
-
-	# Prepend "http://" to given URL where necessary for later output.
-	if [[ $url != http(s|)://* ]]; then
-		url="http://$url"
-	fi
-	local json="{\"longUrl\": \"$url\"}"
-
-	data=$(curl --silent -H "Content-Type: application/json" -d $json $api)
-	# Match against a regex and print it
-	if [[ $data =~ '"id": "(http://goo.gl/[[:alnum:]]+)"' ]]; then
-		print $match
-	fi
-}
-
-
 ## }}}
 
+## Zplug {{{
 
-## External Files {{{
+source ~/.zplug/init.zsh
 
-# ZSH auto-suggestions:
-source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+# Add syntax highlighting
+zplug "zsh-users/zsh-syntax-highlighting", defer:2
 
-# ZSH syntax-highlighting:
-source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+# Add fish-like completions
+zplug "zsh-users/zsh-completions"
 
-# Spaceship theme:
-source ~/.zsh/spaceship-prompt/spaceship.zsh
+# Add fish-like autosuggestions
+zplug "zsh-users/zsh-autosuggestions"
 
-# Include completions
-fpath=(~/.zsh/zsh-completions/src $fpath)
+# Add fish-like history search
+zplug "zsh-users/zsh-history-substring-search"
+
+# Add spaceship theme
+zplug "spaceship-prompt/spaceship-prompt", use:spaceship.zsh, from:github, as:theme
+
+# Can manage local plugins
+zplug "~/.zsh", from:local
+
+# Self-manage
+zplug 'zplug/zplug', hook-build:'zplug --self-manage'
+
+# Install plugins if there are plugins that have not been installed
+if ! zplug check --verbose; then
+    printf "Install? [y/N]: "
+    if read -q; then
+        echo; zplug install
+    fi
+fi
+
+# Then, source plugins and add commands to $PATH
+zplug load 
 
 ## }}}
