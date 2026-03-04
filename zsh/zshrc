@@ -29,6 +29,11 @@ setopt extended_history
 
 ## Prompt {{{
 
+# Pure Prompt
+fpath+=($HOME/.zsh/pure)
+autoload -U promptinit; promptinit
+prompt pure
+
 # Workaround for handling TERM variable in multiple tmux sessions properly:
 if [[ -n ${TMUX} && -n ${commands[tmux]} ]];then
         case $(tmux showenv TERM 2>/dev/null) in

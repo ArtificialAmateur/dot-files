@@ -19,3 +19,6 @@
 [submodule "zsh/plugins/zsh-you-should-use"]
 	path = zsh/plugins/zsh-you-should-use
 	url = https://github.com/MichaelAquilina/zsh-you-should-use
+[submodule "zsh/pure"]
+	path = zsh/pure
+	url = https://github.com/sindresorhus/pure
