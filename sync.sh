@@ -236,7 +236,7 @@ sync_all() {
 
 	echo "==> claude"
 	local claude_paths=(
-		CLAUDE.md settings.json agents commands docs
+		.gitignore CLAUDE.md settings.json agents commands docs
 		hooks rules scripts skills statusline templates
 	)
 	for path in "${claude_paths[@]}"; do
