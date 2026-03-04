@@ -1,12 +1,6 @@
-# Opens tmux properly:
-if command -v tmux >/dev/null; then
-  [[ ! $TERM =~ screen ]] && [ -z $TMUX ] && exec tmux attach
-fi
-
 ## ZSH Modules {{{
 
-# Loads listed modules:
-autoload -Uz compinit promptinit vcs_info color && compinit -i
+autoload -Uz compinit
 
 ## }}}
 
@@ -27,21 +21,13 @@ setopt sharehistory
 # Expands globbing operator and list all matches found:
 setopt extendedglob
 
-# Appends history
-setopt append_history
-
 # Save timestamp
 setopt extended_history
 
-# Add history immediately after command
-setopt inc_append_history
-
 ## }}}
 
-## Prompt {{{
 
-# Activates prompt:
-promptinit
+## Prompt {{{
 
 # Workaround for handling TERM variable in multiple tmux sessions properly:
 if [[ -n ${TMUX} && -n ${commands[tmux]} ]];then
@@ -56,10 +42,11 @@ fi
 
 ## }}}
 
+
 ## History {{{
 
 # Sets history size:
-export HISTSIZE=2000
+export HISTSIZE=50000
 
 # Saves history:
 export SAVEHIST=$HISTSIZE
@@ -69,21 +56,22 @@ export HISTFILE=~/.zsh/zhistory/zhist-$(date +'%Y-%m-%d')
 
 ## }}}
 
+# Deduplicate PATH entries
+typeset -U path
+
 ## Variables {{{
 
 # Set default GPG location
 export GPG_TTY=$(tty)
 
 # Sets default editor to neovim:
-export EDITOR=/usr/bin/nvim
+export EDITOR=nvim
 
 # Fixes "command not found" for root permission programs:
 export PATH=/sbin:/usr/sbin:$PATH
 
 # Displays location of local scripts:
 export PATH=$PATH:~/bin:~/.local/bin
-
-# Set Python environment
 
 # Set Rust environment
 export PATH=$HOME/.cargo/bin:$PATH
@@ -92,20 +80,57 @@ export PATH=$HOME/.cargo/bin:$PATH
 export PATH=$PATH:/usr/local/go/bin
 export PATH=$HOME/go/bin:$PATH
 
-# Sets JDK environments
-#export JDK_HOME=/usr/lib/jvm/java-11-openjdk-amd64
-#export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+# Set NPM environment
+# NPM packages in homedir
+export NPM_PACKAGES="$HOME/.npm-packages"
+# Tell our environment about user-installed node tools
+PATH="$NPM_PACKAGES/bin:$PATH"
+# Unset manpath so we can inherit from /etc/manpath via the `manpath` command
+unset MANPATH  # delete if you already modified MANPATH elsewhere in your configuration
+MANPATH="$NPM_PACKAGES/share/man:$(manpath)"
+# Tell Node about these packages
+NODE_PATH="$NPM_PACKAGES/lib/node_modules:$NODE_PATH"
 
 # Set Nim environment
 export PATH=$HOME/.nimble/bin:$PATH
 
-# Set Node Version Manager environment
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# Set NDK environment
+export NDK=$HOME/.local/share/Android/ndk/26.1.10909125/
+
+# Set fnm (fast node manager)
+FNM_PATH="$HOME/.local/share/fnm"
+if [[ -d $FNM_PATH ]]; then
+	export PATH=$FNM_PATH:$PATH
+	eval "$(fnm env --use-on-cd)"
+fi
+
+# Set rootless Docker
+export DOCKER_HOST=unix:///run/user/$UID/docker.sock
+
+# Set direnv
+eval "$(direnv hook zsh)"
+
+# Claude
+export ENABLE_TOOL_SEARCH=true
+
+# Ghidra
+export GHIDRA_INSTALL_DIR="$HOME/.local/share/Ghidra/ghidra_12.0.3_PUBLIC/"
+
+# Work
+export LOGCRYPT_KEYS_DIR="$HOME/.config/logcrypt/"
+export TEST_HOST=gk
+export SSH_KEY=~/.ssh/graykey_dev.rsa
+export BUILD_TOOLS_DIR=~/Projects/graykey_applogic/build_tools/
+export DEBUG=1
+export AGENT_DEBUG=1
+export SKIP_PORT_VALIDATION=1
+export SKIP_SUPPORT_MATRIX_GENERATION=1
+export PATH=$HOME/Projects/wireguard-vpn/scripts/:$PATH
+
+# Secrets (API keys, credentials — not tracked in git)
+[[ -f ~/.zsh/secrets ]] && source ~/.zsh/secrets
 
 ## }}}
-
 
 
 ## Aliases {{{
@@ -122,37 +147,49 @@ alias clear="echo 'Use ^L!'"
 # Incase you forget to type sudo:
 alias fuck='sudo $(fc -ln -1)'
 
-# Improves 'ls' commands:
-alias ls="ls --color=auto"
-alias ll="ls -lht"
-alias la="ls -a"
-alias lla="ll -a"
-
-# Runs wgetpaste with dpaste:
-alias dpaste="wgetpaste -s dpaste"
-
-# Runs screenshot in interactive mode:
-alias gnome-screenshot="gnome-screenshot --interactive"
-
-## Causes issues with spaceship prompt:
-# ISO 8601:
-#alias date="date -I'seconds' | sed -e 's/T/ /g'"
-
-# Points to docker-compose yaml file
-alias dcp='docker-compose'
-
-# Switches vim to nvim
-alias vim="nvim"
+alias ll="eza -lh --git --sort=modified"
+alias la="eza -a"
+alias lla="eza -lah --git --sort=modified"
+alias tree="eza --tree"
 
 # Fixes editor scrolling issues within tmux
-alias vim="TERM=xterm-color vim"
+alias vim="TERM=xterm-color nvim"
 alias nano="TERM=xterm-color nano"
-alias ssh="TERM=xterm-color ssh"
+[ "$TERM" = "xterm-kitty" ] && alias ssh="kitten ssh" || alias ssh="TERM=xterm-color ssh"
 
 # Start emacs in terminal by default:
 alias emacs="emacs -nw"
 
+# Deduplicate
+alias dedup="jdupes -r -B"
+
+# Prevent accidental overwrites
+alias cp="cp -i"
+alias mv="mv -i"
+
+# bat (Debian installs as batcat)
+if command -v batcat &>/dev/null; then
+	alias bat="batcat"
+fi
+
+# dust replaces du
+alias du="dust"
+
+# Trash
+alias rm="trash-put"
+
+# Claude
+alias claude-yolo="claude --dangerously-skip-permissions"
+
+# Work
+alias gklogs="ssh -o StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null gk 'journalctl -u ifap-applogic -f'"
+alias dfu="sudo dfu-util -S 08220074 -D scarab_c.bin"
+alias clean-build="make clean && cmake -B cmake-build -G Ninja && make updatedb && make android"
+alias build_applogic='build_applogic_target fastinstall'
+alias rebuild_applogic='build_applogic_target fasterinstall'
+alias cryptlog='ssh -o StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null gk '\''sudo journalctl -f -u applogic'\'' | logcrypt cat'
 ## }}}
+
 
 ## Completions {{{
 
@@ -170,88 +207,121 @@ zstyle ':completion:*:warnings' format '%BSorry, no matches for: %d%b'
 
 ## }}}
 
-## Syntax Highlighting {{{
-
-ZSH_HIGHLIGHT_HIGHLIGHTERS=(main cursor)
-typeset -gA ZSH_HIGHLIGHT_STYLES
-# Comments
-ZSH_HIGHLIGHT_STYLES[comment]='fg=#6272A4'
-# Functions/methods
-ZSH_HIGHLIGHT_STYLES[alias]='fg=#50FA7B'
-ZSH_HIGHLIGHT_STYLES[suffix-alias]='fg=#50FA7B'
-ZSH_HIGHLIGHT_STYLES[global-alias]='fg=#50FA7B'
-ZSH_HIGHLIGHT_STYLES[function]='fg=#50FA7B'
-ZSH_HIGHLIGHT_STYLES[command]='fg=#50FA7B'
-ZSH_HIGHLIGHT_STYLES[precommand]='fg=#50FA7B,italic'
-ZSH_HIGHLIGHT_STYLES[autodirectory]='fg=#FFB86C,italic'
-ZSH_HIGHLIGHT_STYLES[single-hyphen-option]='fg=#FFB86C'
-ZSH_HIGHLIGHT_STYLES[double-hyphen-option]='fg=#FFB86C'
-ZSH_HIGHLIGHT_STYLES[back-quoted-argument]='fg=#BD93F9'
-# Built ins
-ZSH_HIGHLIGHT_STYLES[builtin]='fg=#8BE9FD'
-ZSH_HIGHLIGHT_STYLES[reserved-word]='fg=#8BE9FD'
-ZSH_HIGHLIGHT_STYLES[hashed-command]='fg=#8BE9FD'
-# Punctuation
-ZSH_HIGHLIGHT_STYLES[commandseparator]='fg=#FF79C6'
-ZSH_HIGHLIGHT_STYLES[command-substitution-delimiter]='fg=#F8F8F2'
-ZSH_HIGHLIGHT_STYLES[command-substitution-delimiter-unquoted]='fg=#F8F8F2'
-ZSH_HIGHLIGHT_STYLES[process-substitution-delimiter]='fg=#F8F8F2'
-ZSH_HIGHLIGHT_STYLES[back-quoted-argument-delimiter]='fg=#FF79C6'
-ZSH_HIGHLIGHT_STYLES[back-double-quoted-argument]='fg=#FF79C6'
-ZSH_HIGHLIGHT_STYLES[back-dollar-quoted-argument]='fg=#FF79C6'
-# Strings
-ZSH_HIGHLIGHT_STYLES[command-substitution-quoted]='fg=#F1FA8C'
-ZSH_HIGHLIGHT_STYLES[command-substitution-delimiter-quoted]='fg=#F1FA8C'
-ZSH_HIGHLIGHT_STYLES[single-quoted-argument]='fg=#F1FA8C'
-ZSH_HIGHLIGHT_STYLES[single-quoted-argument-unclosed]='fg=#FF5555'
-ZSH_HIGHLIGHT_STYLES[double-quoted-argument]='fg=#F1FA8C'
-ZSH_HIGHLIGHT_STYLES[double-quoted-argument-unclosed]='fg=#FF5555'
-ZSH_HIGHLIGHT_STYLES[rc-quote]='fg=#F1FA8C'
-# Variables
-ZSH_HIGHLIGHT_STYLES[dollar-quoted-argument]='fg=#F8F8F2'
-ZSH_HIGHLIGHT_STYLES[dollar-quoted-argument-unclosed]='fg=#FF5555'
-ZSH_HIGHLIGHT_STYLES[dollar-double-quoted-argument]='fg=#F8F8F2'
-ZSH_HIGHLIGHT_STYLES[assign]='fg=#F8F8F2'
-ZSH_HIGHLIGHT_STYLES[named-fd]='fg=#F8F8F2'
-ZSH_HIGHLIGHT_STYLES[numeric-fd]='fg=#F8F8F2'
-# No category relevant in spec
-ZSH_HIGHLIGHT_STYLES[unknown-token]='fg=#FF5555'
-ZSH_HIGHLIGHT_STYLES[path]='fg=#F8F8F2'
-ZSH_HIGHLIGHT_STYLES[path_pathseparator]='fg=#FF79C6'
-ZSH_HIGHLIGHT_STYLES[path_prefix]='fg=#F8F8F2'
-ZSH_HIGHLIGHT_STYLES[path_prefix_pathseparator]='fg=#FF79C6'
-ZSH_HIGHLIGHT_STYLES[globbing]='fg=#F8F8F2'
-ZSH_HIGHLIGHT_STYLES[history-expansion]='fg=#BD93F9'
-ZSH_HIGHLIGHT_STYLES[back-quoted-argument-unclosed]='fg=#FF5555'
-ZSH_HIGHLIGHT_STYLES[redirection]='fg=#F8F8F2'
-ZSH_HIGHLIGHT_STYLES[arg0]='fg=#F8F8F2'
-ZSH_HIGHLIGHT_STYLES[default]='fg=#F8F8F2'
-ZSH_HIGHLIGHT_STYLES[cursor]='standout'
-## }}}
 
 ## Functions {{{
 
-# Update debian
-function update-all {
-	update-apt
-	update-flatpak
-	update-fw
+# Update OS
+function update-all () {
+	if [[ "$OSTYPE" == "linux-gnu"* ]]
+	then
+		OS=$(awk -F= '$1=="ID" { print $2 ;}' /etc/os-release) 
+		if [[ $OS == 'debian' ]]
+		then
+			update-apt
+		elif [[ $OS == 'arch' ]]
+		then
+			paru
+		fi
+		if cmd_loc="$(type -p "flatpak")"  && [[ ! -z $cmd_loc ]]
+		then
+			update-flatpak
+		fi
+		if cmd_loc="$(type -p "fwupdmgr")"  && [[ ! -z $cmd_loc ]]
+		then
+			update-fw
+		fi
+	elif [[ "$OSTYPE" == "darwin"* ]]
+	then
+		brew update
+		brew upgrade
+		brew autoremove
+		brew cleanup
+	fi
+	update-plugins
+	if cmd_loc="$(type -p "tmux")"  && [[ ! -z $cmd_loc ]]
+	then
+		$HOME/.tmux/plugins/tpm/bin/update_plugins all
+	fi
 }
 
-function update-apt {
+function update-apt () {
 	sudo apt update
 	sudo apt full-upgrade
 	sudo apt autopurge
 	sudo apt autoclean
 }
 
-function update-fw {
+function update-flatpak () {
+	flatpak update
+}
+
+function update-fw () {
 	sudo fwupdmgr refresh
 	sudo fwupdmgr update
 }
 
-function update-flatpak {
-	flatpak update
+function update-git () {
+	find $HOME -maxdepth 8 -name ".git" -prune -type d -printf "%h\n" | parallel --eta "echo {} && git -C {} stash && git -C {} pull --all"
+}
+
+function no-proxy () {
+	env -u HTTP_PROXY -u http_proxy -u HTTPS_PROXY -u https_proxy -u NO_PROXY -u no_proxy -u CURL_CA_BUNDLE -- "$@"
+}
+
+build-push () {
+	local build_path=$1 
+	local binary=${build_path:t} 
+	echo "make configure"
+	make configure
+	echo "make"
+	make
+	echo "adb push $build_path /data/local/tmp/$binary"
+	adb push "$build_path" "/data/local/tmp/$binary"
+}
+
+build-push-run () {
+	local build_path=$1 
+	local binary=${build_path:t} 
+	build-push "$build_path"
+	shift
+	echo "adb shell /data/local/tmp/$binary $@"
+	adb shell "/data/local/tmp/$binary" "$@"
+}
+
+build_applogic_target () {
+	export PATH="$PATH:$PWD"
+	BUILD_TARGET=shell make $1
+}
+
+function update-plugins () {
+	for d in $HOME/.zsh/plugins/*(/)
+		git -C $d pull --ff-only
+}
+
+function mkcd () {
+	mkdir -p "$1" && cd "$1"
+}
+
+function extract () {
+	if [[ ! -f $1 ]]; then
+		echo "extract: '$1' is not a file" >&2
+		return 1
+	fi
+	case $1 in
+		*.tar.bz2) tar xjf "$1" ;;
+		*.tar.gz)  tar xzf "$1" ;;
+		*.tar.xz)  tar xJf "$1" ;;
+		*.tar.zst) tar --zstd -xf "$1" ;;
+		*.tar)     tar xf "$1" ;;
+		*.bz2)     bunzip2 "$1" ;;
+		*.gz)      gunzip "$1" ;;
+		*.xz)      unxz "$1" ;;
+		*.zst)     unzstd "$1" ;;
+		*.zip)     unzip "$1" ;;
+		*.7z)      7z x "$1" ;;
+		*.rar)     unrar x "$1" ;;
+		*) echo "extract: unsupported format '$1'" >&2; return 1 ;;
+	esac
 }
 
 # Displays a list of supported colors:
@@ -287,42 +357,70 @@ function myip {
 	echo # Newline.
 }
 
+# Backup to remote restic
+function remote {
+    restic -r s3:https://s3.us-west-004.backblazeb2.com/photomahoganyresetjailer "$@"
+}
+
+function backup {
+    REMOTE_REPO="s3:https://s3.us-west-004.backblazeb2.com/photomahoganyresetjailer"
+    LOCAL_REPO="/Volumes/LaCie/restic"
+
+    brew list --cask >> $HOME/.brewlist
+    brew leaves --installed-on-request > $HOME/.brewlist
+    while IFS='' read -r LINE || [ -n "${LINE}" ]; do
+        dedup "${LINE}"
+    done < $HOME/.osx-restic
+
+    remote -v -r "$REMOTE_REPO" backup --files-from ~/.osx-restic
+
+    if [ -d "$LOCAL_REPO" ]; then
+      restic -v -r "$LOCAL_REPO" copy --from-repo "$REMOTE_REPO"
+    fi
+}
+
+# Work
+function fastinstall {
+    export PATH="$PATH:$PWD";
+    make android;
+    ssh -o StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null gk "sudo chmod -R 555 /tmp/applogic/static/";
+}
+
 ## }}}
 
-## Zplug {{{
 
-source ~/.zplug/init.zsh
+## Plugins {{{
 
-# Add syntax highlighting
-zplug "zsh-users/zsh-syntax-highlighting", defer:2
+ZPLUGINDIR=$HOME/.zsh/plugins
 
-# Add fish-like completions
-zplug "zsh-users/zsh-completions"
+plugins=(
+	zsh-users/zsh-completions
+	zsh-users/zsh-autosuggestions
+	zsh-users/zsh-history-substring-search
+	zdharma-continuum/fast-syntax-highlighting
+	Aloxaf/fzf-tab
+	MichaelAquilina/zsh-you-should-use
+)
 
-# Add fish-like autosuggestions
-zplug "zsh-users/zsh-autosuggestions"
+for plugin in $plugins; do
+	[[ -d $ZPLUGINDIR/${plugin:t} ]] || \
+		git clone --depth 1 https://github.com/$plugin $ZPLUGINDIR/${plugin:t}
+done
 
-# Add fish-like history search
-zplug "zsh-users/zsh-history-substring-search"
+fpath+=$ZPLUGINDIR/zsh-completions/src
 
-# Add spaceship theme
-zplug "spaceship-prompt/spaceship-prompt", use:spaceship.zsh, from:github, as:theme
+# NOTE: fzf-tab must be sourced after compinit, fast-syntax-highlighting must be last
+source $ZPLUGINDIR/fzf-tab/fzf-tab.plugin.zsh
+source $ZPLUGINDIR/zsh-you-should-use/you-should-use.plugin.zsh
+source $ZPLUGINDIR/zsh-autosuggestions/zsh-autosuggestions.zsh
+source $ZPLUGINDIR/zsh-history-substring-search/zsh-history-substring-search.zsh
+source $ZPLUGINDIR/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
 
-# Can manage local plugins
-zplug "~/.zsh", from:local
+# Bind up/down arrows to history substring search
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
 
-# Self-manage
-zplug 'zplug/zplug', hook-build:'zplug --self-manage'
-
-# Install plugins if there are plugins that have not been installed
-if ! zplug check --verbose; then
-    printf "Install? [y/N]: "
-    if read -q; then
-        echo; zplug install
-    fi
-fi
-
-# Then, source plugins and add commands to $PATH
-zplug load 
+eval "$(zoxide init zsh)"
+eval "$(starship init zsh)"
 
 ## }}}

@@ -1,0 +1,171 @@
+<!-- Extracted from Ghidra 12.1 DEV, 2026-02-27 -->
+# Flat Program API
+
+FlatProgramAPI — simplified program manipulation interface.
+
+*Package(s): ghidra.program.flatapi*
+
+## `FlatProgramAPI`
+
+This class is a flattened version of the Program API.   NOTE:  1. NO METHODS *SHOULD* EVER BE REMOVED FROM THIS CLASS. 2. NO METHOD SIGNATURES *SHOULD* EVER BE CHANGED IN THIS CLASS.    This class is used by GhidraScript.   Changing this class will break user scripts.
+
+**Fields:**
+- `MAX_REFERENCES_TO`: int = 4096
+
+**Methods:**
+- **new**(Program program) — Constructs a new flat program API
+- **new**(Program program, TaskMonitor monitor) *(overload 2)* — Constructs a new flat program API
+- `addEntryPoint`(Address address) → void — Adds an entry point at the specified address
+- `addInstructionXref`(Address from_, Address to, int opIndex, FlowType type) → Reference — Adds a cross reference (XREF)
+- `analyzeAll`(Program program) → void — Starts auto-analysis on the specified program and performs complete analysis of the entire program
+- `analyzeChanges`(Program program) → void — Starts auto-analysis if not started and waits for pending analysis to complete
+- `clearListing`(Address address) → void — Clears the code unit (instruction or data) defined at the address
+- `clearListing`(Address start, Address end) → void *(overload 2)* — Clears the code units (instructions or data) in the specified range
+- `clearListing`(AddressSetView set) → void *(overload 3)* — Clears the code units (instructions or data) in the specified set
+- `clearListing`(AddressSetView set, boolean code, boolean symbols, boolean comments, boolean properties, boolean functions, boolean registers, boolean equates, boolean userReferences, boolean analysisReferences, boolean importReferences, boolean defaultReferences, boolean bookmarks) → boolean *(overload 4)* — Clears the listing in the specified address set
+- `clearListing`(AddressSetView set, boolean instructions, boolean data, boolean symbols, boolean comments, boolean properties, boolean functions, boolean registers, boolean equates, boolean userReferences, boolean analysisReferences, boolean importReferences, boolean defaultReferences, boolean bookmarks) → boolean *(overload 5)* — Clears the listing in the specified address set
+- `createAddressSet`() → AddressSet — Creates a new mutable address set
+- `createAsciiString`(Address address) → Data — Creates a null terminated ascii string starting at the specified address
+- `createAsciiString`(Address address, int length) → Data *(overload 2)* — Create an ASCII string at the specified address
+- `createBookmark`(Address address, String category, String note) → Bookmark
+- `createByte`(Address address) → Data — Creates a byte datatype at the given address
+- `createChar`(Address address) → Data — Creates a char datatype at the given address
+- `createClass`(Namespace parent, String className) → GhidraClass — Creates a new `GhidraClass` with the given name contained inside the specified parent namespace
+- `createDWord`(Address address) → Data — Creates a dword datatype at the given address
+- `createData`(Address address, DataType datatype) → Data — Creates a new defined Data object at the given address
+- `createDouble`(Address address) → Data — Creates a double datatype at the given address
+- `createDwords`(Address start, int count) → void — Creates a list of dword datatypes starting at the given address
+- `createEquate`(Instruction instruction, int operandIndex, String equateName) → Equate — Creates a new equate on the scalar value at the operand index of the instruction
+- `createEquate`(Data data, String equateName) → Equate *(overload 2)* — Creates a new equate on the scalar value at the value of the data
+- `createExternalReference`(Instruction instruction, int operandIndex, String libraryName, String externalLabel, Address externalAddr) → Reference — Creates an external reference from the given instruction
+- `createExternalReference`(Instruction instruction, int operandIndex, String libraryName, String externalLabel, Address externalAddr, RefType refType) → Reference *(overload 2)* — Creates an external reference from the given instruction
+- `createExternalReference`(Data data, String libraryName, String externalLabel, Address externalAddr) → Reference *(overload 3)* — Creates an external reference from the given data
+- `createFloat`(Address address) → Data — Creates a float datatype at the given address
+- `createFragment`(String fragmentName, Address start, long length) → ProgramFragment — Creates a fragment in the root folder of the default program tree
+- `createFragment`(ProgramModule module, String fragmentName, Address start, long length) → ProgramFragment *(overload 2)* — Creates a fragment in the given folder of the default program tree
+- `createFunction`(Address entryPoint, String name) → Function — Creates a function at entry point with the specified name
+- `createLabel`(Address address, String name, boolean makePrimary) → Symbol — Creates a label at the specified address in the global namespace
+- `createLabel`(Address address, String name, boolean makePrimary, SourceType sourceType) → Symbol *(overload 2)* — Creates a label at the specified address in the global namespace
+- `createLabel`(Address address, String name, Namespace namespace, boolean makePrimary, SourceType sourceType) → Symbol *(overload 3)* — Creates a label at the specified address in the specified namespace
+- `createMemoryBlock`(String name, Address start, InputStream input, long length, boolean overlay) → MemoryBlock — Create a new memory block
+- `createMemoryBlock`(String name, Address start, byte[] bytes, boolean overlay) → MemoryBlock *(overload 2)* — Create a new memory block
+- `createMemoryReference`(Instruction instruction, int operandIndex, Address toAddress, RefType flowType) → Reference — Creates a memory reference from the given instruction
+- `createMemoryReference`(Data data, Address toAddress, RefType dataRefType) → Reference *(overload 2)* — Creates a memory reference from the given data
+- `createNamespace`(Namespace parent, String namespaceName) → Namespace — Creates a new `Namespace` with the given name contained inside the specified parent namespace
+- `createQWord`(Address address) → Data — Creates a qword datatype at the given address
+- `createStackReference`(Instruction instruction, int operandIndex, int stackOffset, boolean isWrite) → Reference — Create a stack reference from the given instruction
+- `createUnicodeString`(Address address) → Data — Creates a null terminated unicode string starting at the specified address
+- `createWord`(Address address) → Data — Creates a word datatype at the given address
+- `disassemble`(Address address) → boolean — Start disassembling at the specified address
+- `end`(boolean commit) → void — Ends the transactions on the current program
+- `find`(Address start, byte value) → Address — Finds the first occurrence of the byte starting from the address
+- `find`(Address start, byte[] values) → Address *(overload 2)* — Finds the first occurrence of the byte array sequence starting from the address
+- `find`(String text) → Address *(overload 3)* — Finds the first occurrence of 'text' in the program listing
+- `findBytes`(Address start, String byteString) → Address — Finds the first occurrence of the byte array sequence that matches the given byte string, starting from the address
+- `findBytes`(Address start, String byteString, int matchLimit) → Address[] *(overload 2)*
+- `findBytes`(Address start, String byteString, int matchLimit, int alignment) → Address[] *(overload 3)*
+- `findBytes`(AddressSetView set, String byteString, int matchLimit, int alignment) → Address[] *(overload 4)* — Finds a byte pattern within an addressSet
+- `findPascalStrings`(AddressSetView addressSet, int minimumStringLength, int alignment, boolean includePascalUnicode) → List<FoundString> — Search for sequences of Pascal Ascii strings in program memory
+- `findStrings`(AddressSetView addressSet, int minimumStringLength, int alignment, boolean requireNullTermination, boolean includeAllCharWidths) → List<FoundString> — Search for sequences of Ascii strings in program memory
+- `getAddressFactory`() → AddressFactory
+- `getBookmarks`(Address address) → Bookmark[] — Returns all of the NOTE bookmarks defined at the specified address
+- `getByte`(Address address) → int — Returns the signed 'byte' value at the specified address in memory
+- `getBytes`(Address address, int length) → byte[] — Reads length number of signed bytes starting at the specified address
+- `getCurrentProgram`() → Program — Gets the current program
+- `getDataAfter`(Data data) → Data — Returns the defined data after the specified data or null if no data exists
+- `getDataAfter`(Address address) → Data *(overload 2)* — Returns the defined data after the specified address or null if no data exists
+- `getDataAt`(Address address) → Data — Returns the defined data at the specified address or null if no data exists
+- `getDataBefore`(Data data) → Data — Returns the defined data before the specified data or null if no data exists
+- `getDataBefore`(Address address) → Data *(overload 2)* — Returns the defined data before the specified address or null if no data exists
+- `getDataContaining`(Address address) → Data — Returns the defined data containing the specified address or null if no data exists
+- `getDataTypes`(String name) → DataType[]
+- `getDouble`(Address address) → double — Returns the 'double' value at the specified address in memory
+- `getEOLComment`(Address address) → String — Returns the EOL comment at the specified address
+- `getEquate`(Instruction instruction, int operandIndex, long value) → Equate — Returns the equate defined at the operand index of the instruction with the given value
+- `getEquate`(Data data) → Equate *(overload 2)* — Returns the equate defined on the data
+- `getEquates`(Instruction instruction, int operandIndex) → List<Equate> — Returns the equates defined at the operand index of the instruction
+- `getFirstData`() → Data — Returns the first defined data in the current program
+- `getFirstFunction`() → Function — Returns the first function in the current program
+- `getFirstInstruction`() → Instruction — Returns the first instruction in the current program
+- `getFirstInstruction`(Function function) → Instruction *(overload 2)* — Returns the first instruction in the function
+- `getFloat`(Address address) → double — Returns the 'float' value at the specified address in memory
+- `getFragment`(ProgramModule module, String fragmentName) → ProgramFragment — Returns the fragment with the specified name defined in the given module
+- `getFunctionAfter`(Function function) → Function — Returns the function defined after the specified function in address order
+- `getFunctionAfter`(Address address) → Function *(overload 2)* — Returns the function defined after the specified address
+- `getFunctionAt`(Address entryPoint) → Function — Returns the function with the specified entry point, or null if no function exists
+- `getFunctionBefore`(Function function) → Function — Returns the function defined before the specified function in address order
+- `getFunctionBefore`(Address address) → Function *(overload 2)* — Returns the function defined before the specified address
+- `getFunctionContaining`(Address address) → Function — Returns the function containing the specified address
+- `getGlobalFunctions`(String name) → List<Function> — Returns a list of all functions in the global namespace with the given name
+- `getInstructionAfter`(Instruction instruction) → Instruction — Returns the instruction defined after the specified instruction or null if no instruction exists
+- `getInstructionAfter`(Address address) → Instruction *(overload 2)* — Returns the instruction defined after the specified address or null if no instruction exists
+- `getInstructionAt`(Address address) → Instruction — Returns the instruction at the specified address or null if no instruction exists
+- `getInstructionBefore`(Instruction instruction) → Instruction — Returns the instruction defined before the specified instruction or null if no instruction exists
+- `getInstructionBefore`(Address address) → Instruction *(overload 2)* — Returns the instruction defined before the specified address or null if no instruction exists
+- `getInstructionContaining`(Address address) → Instruction — Returns the instruction containing the specified address or null if no instruction exists
+- `getInt`(Address address) → int — Returns the 'integer' value at the specified address in memory
+- `getLastData`() → Data — Returns the last defined data in the current program
+- `getLastFunction`() → Function — Returns the last function in the current program
+- `getLastInstruction`() → Instruction — Returns the last instruction in the current program
+- `getLong`(Address address) → int — Returns the 'long' value at the specified address in memory
+- `getMemoryBlock`(String name) → MemoryBlock — Returns the first memory block with the specified name
+- `getMemoryBlock`(Address address) → MemoryBlock *(overload 2)* — Returns the memory block containing the specified address, or null if no memory block contains the address
+- `getMemoryBlocks`() → MemoryBlock[] — Returns an array containing all the memory blocks in the current program
+- `getMonitor`() → TaskMonitor — Gets the current task monitor
+- `getNamespace`(Namespace parent, String namespaceName) → Namespace — Returns the non-function namespace with the given name contained inside the specified parent namespace
+- `getPlateComment`(Address address) → String — Returns the PLATE comment at the specified address
+- `getPostComment`(Address address) → String — Returns the POST comment at the specified address
+- `getPreComment`(Address address) → String — Returns the PRE comment at the specified address
+- `getProgramFile`() → File — Returns the `File` that the program was originally imported from
+- `getProjectRootFolder`() → DomainFolder — This method looks up the current project and returns the root domain folder
+- `getReference`(Instruction instruction, Address toAddress) → Reference — Returns the reference from the instruction to the given address
+- `getReference`(Data data, Address toAddress) → Reference *(overload 2)* — Returns the reference from the data to the given address
+- `getReferencesFrom`(Address address) → Reference[] — Returns an array of the references FROM the given address
+- `getReferencesTo`(Address address) → Reference[] — Returns an array of the references TO the given address
+- `getRepeatableComment`(Address address) → String — Returns the repeatable comment at the specified address
+- `getShort`(Address address) → int — Returns the 'short' value at the specified address in memory
+- `getSymbolAfter`(Symbol symbol) → Symbol — Returns the next non-default primary symbol defined after the given symbol
+- `getSymbolAfter`(Address address) → Symbol *(overload 2)* — Returns the next non-default primary symbol defined after the given address
+- `getSymbolAt`(Address address, String name, Namespace namespace) → Symbol — Returns the symbol with the specified address, name, and namespace
+- `getSymbolAt`(Address address) → Symbol *(overload 2)* — Returns the PRIMARY symbol at the specified address, or null if no symbol exists
+- `getSymbolBefore`(Symbol symbol) → Symbol — Returns the previous non-default primary symbol defined before the given symbol
+- `getSymbolBefore`(Address address) → Symbol *(overload 2)* — Returns the previous non-default primary symbol defined after the previous address
+- `getSymbols`(String name, Namespace namespace) → List<Symbol> — Returns a list of all the symbols with the given name in the given namespace
+- `getUndefinedDataAfter`(Address address) → Data — Returns the undefined data after the specified address or null if no undefined data exists
+- `getUndefinedDataAt`(Address address) → Data — Returns the undefined data at the specified address or null if no undefined data exists
+- `getUndefinedDataBefore`(Address address) → Data — Returns the undefined data before the specified address or null if no undefined data exists
+- `openDataTypeArchive`(File archiveFile, boolean readOnly) → FileDataTypeManager — Opens an existing File Data Type Archive
+- `removeBookmark`(Bookmark bookmark) → void — Removes the specified bookmark
+- `removeData`(Data data) → void — Removes the given data from the current program
+- `removeDataAt`(Address address) → void — Removes the data containing the given address from the current program
+- `removeEntryPoint`(Address address) → void — Removes the entry point at the specified address
+- `removeEquate`(Instruction instruction, int operandIndex, long value) → void — Removes the equate defined at the operand index of the instruction with the given value
+- `removeEquate`(Data data) → void *(overload 2)* — Removes the equate defined on the data
+- `removeEquates`(Instruction instruction, int operandIndex) → void — Removes the equates defined at the operand index of the instruction
+- `removeFunction`(Function function) → void — Removes the function from the current program
+- `removeFunctionAt`(Address entryPoint) → void — Removes the function with the given entry point
+- `removeInstruction`(Instruction instruction) → void — Removes the given instruction from the current program
+- `removeInstructionAt`(Address address) → void — Removes the instruction containing the given address from the current program
+- `removeMemoryBlock`(MemoryBlock block) → void — Remove the memory block
+- `removeReference`(Reference reference) → void — Removes the given reference
+- `removeSymbol`(Address address, String name) → boolean — Deletes the symbol with the specified name at the specified address
+- `saveProgram`(Program program) → void — Saves the changes to the specified program
+- `saveProgram`(Program program, List<String> path) → void *(overload 2)* — Saves changes to the specified program
+- `setByte`(Address address, byte value) → void — Sets the 'byte' value at the specified address
+- `setBytes`(Address address, byte[] values) → void — Sets the 'byte' values starting at the specified address
+- `setDouble`(Address address, double value) → void — Sets the 'double' value at the specified address
+- `setEOLComment`(Address address, String comment) → boolean — Sets an EOL comment at the specified address
+- `setFloat`(Address address, float value) → void — Sets the 'float' value at the specified address
+- `setInt`(Address address, int value) → void — Sets the 'integer' value at the specified address
+- `setLong`(Address address, long value) → void — Sets the 'long' value at the specified address
+- `setPlateComment`(Address address, String comment) → boolean — Sets a PLATE comment at the specified address
+- `setPostComment`(Address address, String comment) → boolean — Sets a POST comment at the specified address
+- `setPreComment`(Address address, String comment) → boolean — Sets a PRE comment at the specified address
+- `setReferencePrimary`(Reference reference) → void — Sets the given reference as primary
+- `setReferencePrimary`(Reference reference, boolean primary) → void *(overload 2)* — Sets the given reference as primary
+- `setRepeatableComment`(Address address, String comment) → boolean — Sets a repeatable comment at the specified address
+- `setShort`(Address address, short value) → void — Sets the 'short' value at the specified address
+- `start`() → void — Starts a transaction on the current program
+- `toAddr`(int offset) → Address — Returns a new address with the specified offset in the default address space
+- `toAddr`(long offset) → Address *(overload 2)* — Returns a new address with the specified offset in the default address space
+- `toAddr`(String addressString) → Address *(overload 3)* — Returns a new address inside the specified program as indicated by the string

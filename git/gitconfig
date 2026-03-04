@@ -1,0 +1,39 @@
+[user]
+	name = Frank Tursi
+	email = ftursi@balr.io
+	signingKey = D27ACD5B1F14F13125BFBF8E9117D546FCFFCE99
+[protocol "gcrypt"]
+	allow = always
+[color]
+	ui = auto
+[core]
+	pager = delta
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+	navigate = true
+	line-numbers = true
+	side-by-side = true
+[gcrypt]
+	teamkeys = /home/user/Projects/teamkeys
+[push]
+	autoSetupRemote = true
+[alias]
+    sr = submodule foreach --recursive --quiet 'cd $toplevel && git submodule update $sm_path'
+	gpush = !git fetch && git push
+
+[pull]
+	rebase = false
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[init]
+	defaultbranch = main
+[credential "https://github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential

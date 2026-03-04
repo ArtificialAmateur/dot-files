@@ -1,0 +1,20 @@
+# Starship configuration
+
+[character]
+success_symbol = '[\$](bold green) '
+error_symbol = '[\$](bold red) '
+
+# Disable AWS module - only show when actually on AWS infrastructure
+[aws]
+disabled = true
+
+# Only show Python version when in a virtual environment
+[python]
+symbol = "🐍 "
+# Don't detect based on files, only show when virtualenv is active
+detect_extensions = []
+detect_files = []
+detect_folders = []
+# Only show when VIRTUAL_ENV is set (i.e., when in a virtualenv)
+format = 'via [${symbol}${pyenv_prefix}(${version} )(\($virtualenv\) )]($style)'
+disabled = false

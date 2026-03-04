@@ -1,0 +1,1 @@
+/home/user/.claude/reversing-expert/agents/reversing-expert.md

@@ -1,0 +1,7 @@
+index-url = "https://beachhead.plaer.io/simple"
+extra-index-url = [
+    "https://nexusoss.balr.io/repository/pypi/simple/",
+    "https://nexusoss.balr.io/repository/files.pythonhosted.org/simple/",
+    "https://nexusoss.balr.io/repository/gspypi/simple",
+]
+

@@ -1,0 +1,22 @@
+{
+    "telemetry.feedback.enabled": false,
+    "telemetry.telemetryLevel": "off",
+    "workbench.colorTheme": "Gruvbox Dark (Hard)",
+    "makefile.configureOnOpen": true,
+    "C_Cpp.intelliSenseEngine": "disabled",
+    "editor.defaultFormatter": "ms-vscode.cpptools",
+    "C_Cpp.formatting": "clangFormat",
+    "C_Cpp.clang_format_fallbackStyle": "file",
+    "diffEditor.ignoreTrimWhitespace": false,
+    "C_Cpp.codeAnalysis.clangTidy.enabled": true,
+    "gitlens.telemetry.enabled": false,
+    "claudeCode.preferredLocation": "panel",
+    "telemetry.editStats.enabled": false,
+    "[c]": {
+        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+    },
+    "editor.minimap.enabled": false,
+    "[cpp]": {
+        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+    }
+}

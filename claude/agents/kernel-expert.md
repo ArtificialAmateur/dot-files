@@ -1,0 +1,1 @@
+/home/user/.claude/linux-expert/agents/kernel-expert.md
