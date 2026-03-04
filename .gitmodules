@@ -22,3 +22,6 @@
 [submodule "zsh/pure"]
 	path = zsh/pure
 	url = https://github.com/sindresorhus/pure
+[submodule "config/nvim"]
+	path = config/nvim
+	url = https://github.com/LazyVim/starter
