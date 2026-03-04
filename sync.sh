@@ -18,6 +18,17 @@ EOF
 	exit 1
 }
 
+safe_remove() {
+	if command -v trash >/dev/null 2>&1; then
+		trash "$1"
+	else
+		local bak
+		bak="${1}.bak.$(date +%s)"
+		mv "$1" "$bak"
+		echo "  (backed up to $bak)"
+	fi
+}
+
 for arg in "$@"; do
 	case "$arg" in
 	--prefer=host) PREFER="host" ;;
@@ -88,7 +99,7 @@ import_to_repo() {
 		mkdir -p "$(dirname "$repo")"
 		cp -a "$host" "$repo"
 	fi
-	rm -rf "$host"
+	safe_remove "$host"
 	ln -s "$repo" "$host"
 	echo "  imp: $host -> $repo"
 }
@@ -106,7 +117,7 @@ resolve_conflict() {
 	fi
 
 	if [[ "$identical" -eq 1 ]]; then
-		rm -rf "$host"
+		safe_remove "$host"
 		ln -s "$repo" "$host"
 		echo "  ok: $host (identical, linked)"
 		return
@@ -135,7 +146,7 @@ prefer_host() {
 	else
 		cp -a "$host" "$repo"
 	fi
-	rm -rf "$host"
+	safe_remove "$host"
 	ln -s "$repo" "$host"
 	echo " host: $host -> $repo"
 }
