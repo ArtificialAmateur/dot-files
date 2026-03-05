@@ -227,6 +227,9 @@ sync_all() {
   sync_entry "local/share/fonts" "$HOME/.local/share/fonts"
   sync_entry "local/share/icons" "$HOME/.local/share/icons"
 
+  echo "==> ssh"
+  sync_entry "ssh/config" "$HOME/.ssh/config"
+
   echo "==> ghidra_scripts"
   sync_entry "ghidra_scripts" "$HOME/ghidra_scripts"
 

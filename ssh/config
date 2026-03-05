@@ -1,0 +1,50 @@
+Host *
+  ForwardAgent no
+
+Host rfs
+  Hostname rfs.balr.io
+  User ftursi
+  IdentityFile ~/.ssh/id_online-mba
+
+Host gk
+  HostName gk.lan
+  User clsomimx6
+  IdentityFile ~/.ssh/graykey_dev.rsa
+  StrictHostKeyChecking no
+  LogLevel quiet
+  UserKnownHostsFile /dev/null
+
+Host seth
+  HostName seth.lan
+  User clsomimx6
+  IdentityFile ~/.ssh/graykey_dev.rsa
+
+Host online
+  HostName 192.168.1.251
+  IdentityFile ~/.ssh/id_online-mba
+
+Host convolution
+  HostName convolution.balr.io
+  User ftursi
+  IdentityFile ~/.ssh/id_convolution
+
+Host gitlab
+  HostName gitlab.balr.io
+  IdentityFile ~/.ssh/id_gitlab
+
+Host gluttony
+  HostName gluttony.plaer.io
+  User ftursi
+
+Host greed
+  HostName greed.plaer.io
+  User ftursi
+
+Host research-router
+    HostName research-router.lan
+    User root
+
+Host github.com
+  Hostname ssh.github.com
+  Port 443
+
