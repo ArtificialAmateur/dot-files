@@ -1,10 +1,8 @@
-## ZSH Modules {{{
+## ZSH Modules
 
 autoload -Uz compinit
 
-## }}}
-
-## Options {{{
+## Options
 
 # Auto-corrects commands:
 setopt correctall
@@ -24,10 +22,7 @@ setopt extendedglob
 # Save timestamp
 setopt extended_history
 
-## }}}
-
-
-## Prompt {{{
+## Prompt
 
 # Pure Prompt
 fpath+=($HOME/.zsh/pure)
@@ -45,10 +40,7 @@ if [[ -n ${TMUX} && -n ${commands[tmux]} ]];then
         esac
 fi
 
-## }}}
-
-
-## History {{{
+## History
 
 # Sets history size:
 export HISTSIZE=50000
@@ -57,14 +49,13 @@ export HISTSIZE=50000
 export SAVEHIST=$HISTSIZE
 
 # Sets history file directory:
-export HISTFILE=~/.zsh/zhistory/zhist-$(date +'%Y-%m-%d')
+export HISTFILE="$HOME/.zsh/zhistory/zhist-$(date +'%Y-%m-%d')"
 
-## }}}
 
 # Deduplicate PATH entries
 typeset -U path
 
-## Variables {{{
+## Variables
 
 # Set default GPG location
 export GPG_TTY=$(tty)
@@ -73,17 +64,17 @@ export GPG_TTY=$(tty)
 export EDITOR=nvim
 
 # Fixes "command not found" for root permission programs:
-export PATH=/sbin:/usr/sbin:$PATH
+export PATH="/sbin:/usr/sbin:$PATH"
 
 # Displays location of local scripts:
-export PATH=$PATH:~/bin:~/.local/bin
+export PATH="$PATH:$HOME/bin:$HOME/.local/bin"
 
 # Set Rust environment
-export PATH=$HOME/.cargo/bin:$PATH
+export PATH="$HOME/.cargo/bin:$PATH"
 
 # Set Go environment
-export PATH=$PATH:/usr/local/go/bin
-export PATH=$HOME/go/bin:$PATH
+export PATH="$PATH:/usr/local/go/bin"
+export PATH="$HOME/go/bin:$PATH"
 
 # Set NPM environment
 # NPM packages in homedir
@@ -97,20 +88,20 @@ MANPATH="$NPM_PACKAGES/share/man:$(manpath)"
 NODE_PATH="$NPM_PACKAGES/lib/node_modules:$NODE_PATH"
 
 # Set Nim environment
-export PATH=$HOME/.nimble/bin:$PATH
+export PATH="$HOME/.nimble/bin:$PATH"
 
 # Set NDK environment
-export NDK=$HOME/.local/share/Android/ndk/26.1.10909125/
+export NDK="$HOME/.local/share/Android/ndk/26.1.10909125/"
 
 # Set fnm (fast node manager)
 FNM_PATH="$HOME/.local/share/fnm"
 if [[ -d $FNM_PATH ]]; then
-	export PATH=$FNM_PATH:$PATH
+	export PATH="$FNM_PATH:$PATH"
 	eval "$(fnm env --use-on-cd)"
 fi
 
 # Set rootless Docker
-export DOCKER_HOST=unix:///run/user/$UID/docker.sock
+export DOCKER_HOST="unix:///run/user/$UID/docker.sock"
 
 # Set direnv
 eval "$(direnv hook zsh)"
@@ -124,21 +115,18 @@ export GHIDRA_INSTALL_DIR="$HOME/.local/share/Ghidra/ghidra_12.0.3_PUBLIC/"
 # Work
 export LOGCRYPT_KEYS_DIR="$HOME/.config/logcrypt/"
 export TEST_HOST=gk
-export SSH_KEY=~/.ssh/graykey_dev.rsa
-export BUILD_TOOLS_DIR=~/Projects/graykey_applogic/build_tools/
+export SSH_KEY="$HOME/.ssh/graykey_dev.rsa"
+export BUILD_TOOLS_DIR="$HOME/Work/graykey_applogic/build_tools/"
 export DEBUG=1
 export AGENT_DEBUG=1
 export SKIP_PORT_VALIDATION=1
 export SKIP_SUPPORT_MATRIX_GENERATION=1
-export PATH=$HOME/Projects/wireguard-vpn/scripts/:$PATH
+export PATH="$HOME/Work/wireguard-vpn/scripts/:$PATH"
 
 # Secrets (API keys, credentials — not tracked in git)
-[[ -f ~/.zsh/secrets ]] && source ~/.zsh/secrets
+[[ -f "$HOME/.zsh/secrets" ]] && source "$HOME/.zsh/secrets"
 
-## }}}
-
-
-## Aliases {{{
+## Aliases
 
 # Objdump use intel syntax
 alias objdump="objdump -M intel"
@@ -193,13 +181,11 @@ alias clean-build="make clean && cmake -B cmake-build -G Ninja && make updatedb 
 alias build_applogic='build_applogic_target fastinstall'
 alias rebuild_applogic='build_applogic_target fasterinstall'
 alias cryptlog='ssh -o StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null gk '\''sudo journalctl -f -u applogic'\'' | logcrypt cat'
-## }}}
 
-
-## Completions {{{
+## Completions
 
 # Activates completions:
-compinit -d ~/var/cache/zsh
+compinit -d "$HOME/var/cache/zsh"
 
 # Enables completions cache:
 zstyle ':completion::complete:*' use-cache 1
@@ -210,10 +196,7 @@ zstyle ':completion:*:descriptions' format '%U%B%d%b%u'
 # Gives error if no matches appear:
 zstyle ':completion:*:warnings' format '%BSorry, no matches for: %d%b'
 
-## }}}
-
-
-## Functions {{{
+## Functions
 
 # Update OS
 function update-all () {
@@ -245,7 +228,7 @@ function update-all () {
 	update-plugins
 	if cmd_loc="$(type -p "tmux")"  && [[ ! -z $cmd_loc ]]
 	then
-		$HOME/.tmux/plugins/tpm/bin/update_plugins all
+		"$HOME/.tmux/plugins/tpm/bin/update_plugins" all
 	fi
 }
 
@@ -266,7 +249,7 @@ function update-fw () {
 }
 
 function update-git () {
-	find $HOME -maxdepth 8 -name ".git" -prune -type d -printf "%h\n" | parallel --eta "echo {} && git -C {} stash && git -C {} pull --all"
+	find "$HOME" -maxdepth 8 -name ".git" -prune -type d -printf "%h\n" | parallel --eta "echo {} && git -C {} stash && git -C {} pull --all"
 }
 
 function no-proxy () {
@@ -299,8 +282,8 @@ build_applogic_target () {
 }
 
 function update-plugins () {
-	for d in $HOME/.zsh/plugins/*(/)
-		git -C $d pull --ff-only
+	for d in "$HOME"/.zsh/plugins/*(/)
+		git -C "$d" pull --ff-only
 }
 
 function mkcd () {
@@ -371,13 +354,13 @@ function backup {
     REMOTE_REPO="s3:https://s3.us-west-004.backblazeb2.com/photomahoganyresetjailer"
     LOCAL_REPO="/Volumes/LaCie/restic"
 
-    brew list --cask >> $HOME/.brewlist
-    brew leaves --installed-on-request > $HOME/.brewlist
+    brew list --cask >> "$HOME/.brewlist"
+    brew leaves --installed-on-request > "$HOME/.brewlist"
     while IFS='' read -r LINE || [ -n "${LINE}" ]; do
         dedup "${LINE}"
-    done < $HOME/.osx-restic
+    done < "$HOME/.osx-restic"
 
-    remote -v -r "$REMOTE_REPO" backup --files-from ~/.osx-restic
+    remote -v -r "$REMOTE_REPO" backup --files-from "$HOME/.osx-restic"
 
     if [ -d "$LOCAL_REPO" ]; then
       restic -v -r "$LOCAL_REPO" copy --from-repo "$REMOTE_REPO"
@@ -391,12 +374,9 @@ function fastinstall {
     ssh -o StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null gk "sudo chmod -R 555 /tmp/applogic/static/";
 }
 
-## }}}
+## Plugins
 
-
-## Plugins {{{
-
-ZPLUGINDIR=$HOME/.zsh/plugins
+ZPLUGINDIR="$HOME/.zsh/plugins"
 
 plugins=(
 	zsh-users/zsh-completions
@@ -407,18 +387,18 @@ plugins=(
 )
 
 for plugin in $plugins; do
-	[[ -d $ZPLUGINDIR/${plugin:t} ]] || \
-		git clone --depth 1 https://github.com/$plugin $ZPLUGINDIR/${plugin:t}
+	[[ -d "$ZPLUGINDIR/${plugin:t}" ]] || \
+		git clone --depth 1 "https://github.com/$plugin" "$ZPLUGINDIR/${plugin:t}"
 done
 
-fpath+=$ZPLUGINDIR/zsh-completions/src
+fpath+="$ZPLUGINDIR/zsh-completions/src"
 
 # NOTE: fast-syntax-highlighting must be sourced last
-source $ZPLUGINDIR/zsh-you-should-use/you-should-use.plugin.zsh
-source $ZPLUGINDIR/zsh-autosuggestions/zsh-autosuggestions.zsh
-source $ZPLUGINDIR/zsh-history-substring-search/zsh-history-substring-search.zsh
+source "$ZPLUGINDIR/zsh-you-should-use/you-should-use.plugin.zsh"
+source "$ZPLUGINDIR/zsh-autosuggestions/zsh-autosuggestions.zsh"
+source "$ZPLUGINDIR/zsh-history-substring-search/zsh-history-substring-search.zsh"
 # NOTE: fast-syntax-highlighting can't be re-sourced (recursive widget wrapping)
-[[ -z $_FSH_LOADED ]] && source $ZPLUGINDIR/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh && _FSH_LOADED=1
+[[ -z $_FSH_LOADED ]] && source "$ZPLUGINDIR/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh" && _FSH_LOADED=1
 
 # Bind up/down arrows to history substring search
 bindkey '^[[A' history-substring-search-up
@@ -426,4 +406,3 @@ bindkey '^[[B' history-substring-search-down
 
 eval "$(zoxide init zsh)"
 
-## }}}
