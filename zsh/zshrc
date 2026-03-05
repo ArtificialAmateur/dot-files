@@ -175,12 +175,12 @@ alias rm="trash-put"
 alias claude-yolo="claude --dangerously-skip-permissions"
 
 # Work
-alias gklogs="ssh -o StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null gk 'journalctl -u ifap-applogic -f'"
+alias gklogs="ssh gk 'journalctl -u ifap-applogic -f'"
 alias dfu="sudo dfu-util -S 08220074 -D scarab_c.bin"
 alias clean-build="make clean && cmake -B cmake-build -G Ninja && make updatedb && make android"
-alias build_applogic='build_applogic_target fastinstall'
-alias rebuild_applogic='build_applogic_target fasterinstall'
-alias cryptlog='ssh -o StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null gk '\''sudo journalctl -f -u applogic'\'' | logcrypt cat'
+alias build-applogic='build-applogic-target fastinstall'
+alias rebuild-applogic='build-applogic-target fasterinstall'
+alias cryptlog='ssh gk '\''sudo journalctl -f -u applogic'\'' | logcrypt cat'
 
 ## Completions
 
@@ -276,9 +276,9 @@ build-push-run () {
 	adb shell "/data/local/tmp/$binary" "$@"
 }
 
-build_applogic_target () {
+build-applogic-target () {
 	export PATH="$PATH:$PWD"
-	BUILD_TARGET=shell make $1
+	BUILD_TARGET=shell make "$1"
 }
 
 function update-plugins () {
@@ -369,9 +369,53 @@ function backup {
 
 # Work
 function fastinstall {
-    export PATH="$PATH:$PWD";
-    make android;
-    ssh -o StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null gk "sudo chmod -R 555 /tmp/applogic/static/";
+    export PATH="$PATH:$PWD"
+    make android
+    ssh gk "sudo chmod -R 555 /tmp/applogic/static/"
+}
+
+function adb-logcat () {
+	adb logcat -v color "${1:+$1:V}" '*:S'
+}
+
+function adb-forward () {
+	adb reverse "tcp:$1" "tcp:$1"
+}
+
+function gitsync () {
+	git fetch --all --prune && git pull --ff-only && git submodule update --init --recursive
+}
+
+function tmpd () {
+	local dir
+	dir=$(mktemp -d "/tmp/tmp-$(date +'%Y%m%d-%H%M%S')-XXXXXX")
+	cd "$dir" && echo "$dir"
+}
+
+function portcheck () {
+	ss -tulnp | grep ":$1 "
+}
+
+function hex () {
+	xxd -p | tr -d '\n'
+	echo
+}
+
+function unhex () {
+	xxd -r -p
+}
+
+function retry () {
+	local max=$1
+	shift
+	local n=1
+	while [[ $n -le $max ]]; do
+		echo "attempt $n/$max" >&2
+		"$@" && return 0
+		((n++))
+	done
+	echo "failed after $max attempts" >&2
+	return 1
 }
 
 ## Plugins
