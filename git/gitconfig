@@ -1,7 +1,10 @@
 [user]
 	name = Frank Tursi
-	email = ftursi@balr.io
-	signingKey = D27ACD5B1F14F13125BFBF8E9117D546FCFFCE99
+	useConfigOnly = true
+[includeIf "gitdir:~/Work/"]
+	path = ~/.gitconfig-work
+[includeIf "gitdir:~/Projects/"]
+	path = ~/.gitconfig-personal
 [protocol "gcrypt"]
 	allow = always
 [color]
@@ -15,7 +18,7 @@
 	line-numbers = true
 	side-by-side = true
 [gcrypt]
-	teamkeys = /home/user/Projects/teamkeys
+	teamkeys = /home/user/Work/teamkeys
 [push]
 	autoSetupRemote = true
 [alias]
