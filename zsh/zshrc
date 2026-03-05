@@ -403,7 +403,6 @@ plugins=(
 	zsh-users/zsh-autosuggestions
 	zsh-users/zsh-history-substring-search
 	zdharma-continuum/fast-syntax-highlighting
-	Aloxaf/fzf-tab
 	MichaelAquilina/zsh-you-should-use
 )
 
@@ -414,18 +413,17 @@ done
 
 fpath+=$ZPLUGINDIR/zsh-completions/src
 
-# NOTE: fzf-tab must be sourced after compinit, fast-syntax-highlighting must be last
-source $ZPLUGINDIR/fzf-tab/fzf-tab.plugin.zsh
+# NOTE: fast-syntax-highlighting must be sourced last
 source $ZPLUGINDIR/zsh-you-should-use/you-should-use.plugin.zsh
 source $ZPLUGINDIR/zsh-autosuggestions/zsh-autosuggestions.zsh
 source $ZPLUGINDIR/zsh-history-substring-search/zsh-history-substring-search.zsh
-source $ZPLUGINDIR/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
+# NOTE: fast-syntax-highlighting can't be re-sourced (recursive widget wrapping)
+[[ -z $_FSH_LOADED ]] && source $ZPLUGINDIR/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh && _FSH_LOADED=1
 
 # Bind up/down arrows to history substring search
 bindkey '^[[A' history-substring-search-up
 bindkey '^[[B' history-substring-search-down
 
 eval "$(zoxide init zsh)"
-eval "$(starship init zsh)"
 
 ## }}}
