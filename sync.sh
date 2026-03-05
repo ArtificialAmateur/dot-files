@@ -252,4 +252,203 @@ ln -sf ~/.zsh/zshrc ~/.zshrc
 echo "==> submodules"
 git -C "$REPO" submodule update --init --recursive
 
+# Bidirectional sync for claude code marketplaces and plugins.
+# Desired state lives in claude/plugins.conf; host state in ~/.claude/plugins/.
+
+sync_claude_marketplaces() {
+  local tmp="$1" conf="$2"
+
+  while IFS= read -r repo; do
+    echo "  add: marketplace $repo"
+    claude plugin marketplace add "$repo" || true
+  done < <(comm -23 "$tmp/want_mkts" "$tmp/have_mkts")
+
+  while IFS= read -r repo; do
+    case "$PREFER" in
+    host)
+      echo "  imp: marketplace $repo"
+      echo "marketplace $repo" >>"$conf"
+      ;;
+    repo) echo " skip: marketplace $repo (host-only)" ;;
+    *)
+      echo ""
+      echo "  HOST-ONLY marketplace: $repo"
+      while true; do
+        printf "    [a]dd to conf / [s]kip? "
+        read -r choice
+        case "$choice" in
+        a)
+          echo "marketplace $repo" >>"$conf" && echo "  added"
+          break
+          ;;
+        s)
+          echo "  skipped"
+          break
+          ;;
+        *) echo "  invalid" ;;
+        esac
+      done
+      ;;
+    esac
+  done < <(comm -13 "$tmp/want_mkts" "$tmp/have_mkts")
+
+  claude plugin marketplace update 2>/dev/null || true
+}
+
+sync_claude_installs() {
+  local tmp="$1" conf="$2"
+
+  while IFS= read -r plugin; do
+    echo "  install: $plugin"
+    claude plugin install "$plugin" || true
+  done < <(comm -23 "$tmp/want_all" "$tmp/have_all")
+
+  while IFS= read -r plugin; do
+    local prefix="plugin"
+    grep -qx "$plugin" "$tmp/have_off" 2>/dev/null && prefix="!plugin"
+    case "$PREFER" in
+    host)
+      echo "  imp: $plugin"
+      echo "$prefix $plugin" >>"$conf"
+      ;;
+    repo) echo " skip: $plugin (host-only)" ;;
+    *)
+      echo ""
+      echo "  HOST-ONLY plugin: $plugin (${prefix#!})"
+      while true; do
+        printf "    [a]dd to conf / [s]kip? "
+        read -r choice
+        case "$choice" in
+        a)
+          echo "$prefix $plugin" >>"$conf" && echo "  added"
+          break
+          ;;
+        s)
+          echo "  skipped"
+          break
+          ;;
+        *) echo "  invalid" ;;
+        esac
+      done
+      ;;
+    esac
+  done < <(comm -13 "$tmp/want_all" "$tmp/have_all")
+}
+
+sync_claude_states() {
+  local tmp="$1" conf="$2"
+
+  while IFS= read -r plugin; do
+    local want="enabled" have="enabled"
+    grep -qx "$plugin" "$tmp/want_off" 2>/dev/null && want="disabled"
+    grep -qx "$plugin" "$tmp/have_off" 2>/dev/null && have="disabled"
+
+    if [[ "$want" == "$have" ]]; then
+      echo "  ok: $plugin ($want)"
+      continue
+    fi
+
+    case "$PREFER" in
+    host)
+      if [[ "$have" == "disabled" ]]; then
+        sed -i "s/^plugin $plugin$/!plugin $plugin/" "$conf"
+      else
+        sed -i "s/^!plugin $plugin$/plugin $plugin/" "$conf"
+      fi
+      echo " host: $plugin ($have)"
+      ;;
+    repo)
+      if [[ "$want" == "disabled" ]]; then
+        claude plugin disable "$plugin" 2>/dev/null || true
+      else
+        claude plugin enable "$plugin" 2>/dev/null || true
+      fi
+      echo " repo: $plugin ($want)"
+      ;;
+    *)
+      echo ""
+      echo "  STATE: $plugin (conf=$want host=$have)"
+      while true; do
+        printf "    [h]ost / [r]epo / [s]kip? "
+        read -r choice
+        case "$choice" in
+        h)
+          if [[ "$have" == "disabled" ]]; then
+            sed -i "s/^plugin $plugin$/!plugin $plugin/" "$conf"
+          else
+            sed -i "s/^!plugin $plugin$/plugin $plugin/" "$conf"
+          fi
+          echo " host: $plugin ($have)" && break
+          ;;
+        r)
+          if [[ "$want" == "disabled" ]]; then
+            claude plugin disable "$plugin" 2>/dev/null || true
+          else
+            claude plugin enable "$plugin" 2>/dev/null || true
+          fi
+          echo " repo: $plugin ($want)" && break
+          ;;
+        s) echo "  skipped" && break ;;
+        *) echo "  invalid" ;;
+        esac
+      done
+      ;;
+    esac
+  done < <(comm -12 "$tmp/want_all" "$tmp/have_all")
+}
+
+sync_claude_plugins() {
+  command -v claude >/dev/null 2>&1 || return 0
+  echo "==> claude plugins"
+
+  local conf="$REPO/claude/plugins.conf"
+  if [[ ! -f "$conf" ]]; then
+    echo "  skip: plugins.conf not found"
+    return
+  fi
+
+  local tmp
+  tmp="$(mktemp -d)"
+  trap 'rm -rf "$tmp"' RETURN
+
+  local mkts_json="$HOME/.claude/plugins/known_marketplaces.json"
+  local inst_json="$HOME/.claude/plugins/installed_plugins.json"
+  local settings="$HOME/.claude/settings.json"
+
+  # Parse desired state from conf
+  { grep '^marketplace ' "$conf" || true; } | awk '{print $2}' | sort >"$tmp/want_mkts"
+  { grep '^plugin ' "$conf" || true; } | awk '{print $2}' | sort >"$tmp/want_on"
+  { grep '^!plugin ' "$conf" || true; } | awk '{print $2}' | sort >"$tmp/want_off"
+  sort -u "$tmp/want_on" "$tmp/want_off" >"$tmp/want_all"
+
+  # Parse host state
+  if [[ -f "$mkts_json" ]]; then
+    python3 -c "
+import json
+for v in json.load(open('$mkts_json')).values():
+    print(v['source']['repo'])" 2>/dev/null
+  fi | sort >"$tmp/have_mkts"
+
+  if [[ -f "$inst_json" ]]; then
+    python3 -c "
+import json
+for k in json.load(open('$inst_json')).get('plugins', {}):
+    print(k)" 2>/dev/null
+  fi | sort >"$tmp/have_all"
+
+  if [[ -f "$settings" ]]; then
+    python3 -c "
+import json
+d = json.load(open('$settings')).get('enabledPlugins', {})
+for k, v in d.items():
+    if not v: print(k)" 2>/dev/null
+  fi | sort >"$tmp/have_off"
+
+  sync_claude_marketplaces "$tmp" "$conf"
+  sync_claude_installs "$tmp" "$conf"
+  sync_claude_states "$tmp" "$conf"
+}
+
+sync_claude_plugins
+
 echo "done"
